@@ -1,8 +1,14 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+
+const posts = (await getCollection('blog'))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 5);
 ---
 
 <!doctype html>
@@ -13,37 +19,132 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<body>
 		<Header />
 		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
+			<section class="intro">
+				<p>
+					A space for thinking out loud—<br />
+					on products, technology, and the craft of building things that matter.
+				</p>
+			</section>
+
+			<section class="recent-posts">
+				<h2>Recent</h2>
+				<ul>
+					{posts.map((post) => (
+						<li>
+							<a href={`/blog/${post.id}/`}>
+								<span class="post-title">{post.data.title}</span>
+								<span class="post-date">
+									<FormattedDate date={post.data.pubDate} />
+								</span>
+							</a>
+						</li>
+					))}
+				</ul>
+				<a href="/blog" class="view-all">All writing →</a>
+			</section>
 		</main>
 		<Footer />
 	</body>
 </html>
+
+<style>
+	.intro {
+		padding: var(--space-xl) 0 var(--space-2xl);
+		border-bottom: 1px solid var(--color-border-light);
+	}
+
+	.intro p {
+		margin: 0;
+		font-family: var(--font-serif);
+		color: var(--color-text-secondary);
+		font-size: 1.25rem;
+		line-height: 1.7;
+		font-style: italic;
+	}
+
+	.recent-posts {
+		padding-top: var(--space-xl);
+	}
+
+	.recent-posts h2 {
+		font-family: var(--font-sans);
+		font-size: 0.75rem;
+		font-weight: 500;
+		color: var(--color-text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		margin: 0 0 var(--space-lg) 0;
+		font-style: normal;
+	}
+
+	.recent-posts ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.recent-posts li {
+		margin-bottom: 0;
+		border-bottom: 1px solid var(--color-border-light);
+	}
+
+	.recent-posts li:last-child {
+		border-bottom: none;
+	}
+
+	.recent-posts a {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: var(--space-md);
+		padding: var(--space-md) 0;
+		text-decoration: none;
+		color: var(--color-text);
+		transition: color 0.2s ease;
+	}
+
+	.recent-posts a:hover {
+		color: var(--color-accent);
+	}
+
+	.post-title {
+		flex: 1;
+		font-family: var(--font-serif);
+	}
+
+	.post-date {
+		font-family: var(--font-sans);
+		color: var(--color-text-muted);
+		font-size: 0.8125rem;
+		white-space: nowrap;
+		letter-spacing: 0.02em;
+	}
+
+	.view-all {
+		display: inline-block;
+		margin-top: var(--space-lg);
+		font-family: var(--font-sans);
+		color: var(--color-text-secondary);
+		text-decoration: none;
+		font-size: 0.875rem;
+	}
+
+	.view-all:hover {
+		color: var(--color-accent);
+	}
+
+	@media (max-width: 640px) {
+		.intro p {
+			font-size: 1.125rem;
+		}
+
+		.recent-posts a {
+			flex-direction: column;
+			gap: var(--space-xs);
+		}
+
+		.post-date {
+			font-size: 0.75rem;
+		}
+	}
+</style>
